@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生命靈數計算｜Min's Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FDF5E6;
+            --card: #FFFFFF;
+            --text: #5D4037;
+            --accent: #E0D7C6;
+            --shadow: 0 4px 20px rgba(93,64,55,0.10);
+            --pink: #F8BBD0;
+            --pink-deep: #f48fb1;
+            --pink-text: #880E4F;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Serif TC', 'Hiragino Sans GB', 'Microsoft JhengHei', serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 20% 10%, rgba(248,187,208,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 90%, rgba(224,215,198,0.25) 0%, transparent 60%);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px 60px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+            animation: fadeUp 0.7s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── 頂部 ── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--pink-text);
+            text-decoration: none;
+            font-size: 0.88rem;
+            opacity: 0.8;
+            margin-bottom: 16px;
+            transition: opacity 0.2s;
+        }
+        .back-btn:hover { opacity: 1; }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0 0 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .page-subtitle {
+            font-size: 0.92rem;
+            opacity: 0.75;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* ── 計算卡片 ── */
+        .calc-card {
+            background: var(--card);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .calc-label {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--pink-text);
+            letter-spacing: 0.06em;
+            margin: 0 0 12px;
+            opacity: 0.8;
+        }
+
+        .date-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .date-inputs input {
+            width: 100%;
+            border: 2px solid var(--pink);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            color: var(--text);
+            background: linear-gradient(135deg, #fff 70%, #fff0f5);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .date-inputs input:focus {
+            border-color: var(--pink-deep);
+            box-shadow: 0 0 0 3px rgba(248,187,208,0.3);
+        }
+
+        .date-inputs input::placeholder {
+            color: #cbb9b0;
+            font-size: 0.85rem;
+        }
+
+        .calc-btn {
+            width: 100%;
+            background: var(--pink);
+            color: var(--pink-text);
+            border: none;
+            border-radius: 99px;
+            padding: 13px;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 10px rgba(248,187,208,0.5);
+            letter-spacing: 0.04em;
+        }
+
+        .calc-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(248,187,208,0.7);
+        }
+
+        .calc-hint {
+            font-size: 0.82rem;
+            opacity: 0.6;
+            text-align: center;
+            margin: 12px 0 0;
+        }
+
+        /* ── 結果區 ── */
+        #result-section {
+            display: none;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .result-number-card {
+            background: linear-gradient(135deg, #fff8f0 0%, #fff0f5 100%);
+            border: 2px solid var(--pink-deep);
+            border-radius: 18px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 20px rgba(244,143,177,0.15);
+        }
+
+        .result-number-wrap {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .result-number {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--pink-deep);
+            line-height: 1;
+        }
+
+        .result-number-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--pink-text);
+            opacity: 0.7;
+            padding-bottom: 10px;
+        }
+
+        .result-keyword {
+            display: inline-block;
+            background: var(--pink);
+            color: var(--pink-text);
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 99px;
+            margin-bottom: 14px;
+        }
+
+        .result-desc {
+            font-size: 0.93rem;
+            line-height: 1.8;
+            opacity: 0.85;
+            text-align: left;
+        }
+
+        /* ── 優缺點 ── */
+        .trait-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .trait-box {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .trait-title {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+
+        .trait-title.light { color: #4caf50; }
+        .trait-title.dark  { color: #ef9a9a; }
+
+        .trait-list {
+            font-size: 0.85rem;
+            line-height: 1.9;
+            opacity: 0.85;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+
+        /* ── 計算說明 ── */
+        .how-card {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .how-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--pink-text);
+            opacity: 0.8;
+            letter-spacing: 0.06em;
+            margin: 0 0 10px;
+        }
+
+        .how-text {
+            font-size: 0.88rem;
+            line-height: 1.8;
+            opacity: 0.8;
+        }
+
+        .how-example {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            line-height: 1.8;
+            opacity: 0.85;
+        }
+
+        /* ── 頁尾 ── */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.82rem;
+            opacity: 0.5;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- 頂部 -->
+    <div class="page-header">
+        <a href="index.html" class="back-btn">← 回到 Min's Studio</a>
+        <h1 class="page-title">🔢 生命靈數計算</h1>
+        <p class="page-subtitle">輸入你的生日，算出屬於你的數字密碼<br>看看宇宙給你安排了什麼能量 ✨</p>
+    </div>
+
+    <!-- 計算卡片 -->
+    <div class="calc-card">
+        <div class="calc-label">📅 輸入你的西元生日</div>
+        <div class="date-inputs">
+            <input type="number" id="input-year" placeholder="西元年（如1991）" min="1900" max="2099">
+            <input type="number" id="input-month" placeholder="月（1-12）" min="1" max="12">
+            <input type="number" id="input-day" placeholder="日（1-31）" min="1" max="31">
+        </div>
+        <button class="calc-btn" onclick="calculate()">✨ 計算我的生命靈數</button>
+    </div>
+
+    <!-- 結果區 -->
+    <div id="result-section">
+        <div class="result-number-card">
+            <div class="result-number-wrap">
+                <div class="result-number" id="result-num"></div>
+                <div class="result-number-label" id="result-label"></div>
+            </div>
+            <div class="result-name" id="result-name"></div>
+            <div class="result-keyword" id="result-keyword"></div>
+            <div class="result-desc" id="result-desc"></div>
+            <div class="trait-row">
+                <div class="trait-box">
+                    <div class="trait-title light">🌟 超能力</div>
+                    <div class="trait-list" id="result-light"></div>
+                </div>
+                <div class="trait-box">
+                    <div class="trait-title dark">🌙 挑戰面</div>
+                    <div class="trait-list" id="result-dark"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁尾 -->
+    <div class="footer">
+        生命靈數僅供參考，人生掌握在自己手中 🌿<br>
+        © Min's Studio
+    </div>
+
+</div>
+
+<script>
+    const numerologyData = {
+        1: {
+            name: "1 號人｜開創者",
+            keyword: "獨立 · 領袖 · 創造",
+            desc: "你是天生的領袖，充滿自信與行動力，喜歡走自己的路。勇於開創新局，點子源源不絕，是團體中最有衝勁的那個人。",
+            light: "獨立自主、創意豐富、行動力強、勇於挑戰",
+            dark: "有時強勢、容易固執、不善妥協"
+        },
+        2: {
+            name: "2 號人｜協調者",
+            keyword: "敏感 · 直覺 · 合作",
+            desc: "你擁有細膩的感受力與極強的直覺，善於察覺他人的情緒，是天生的調和者。在關係中溫柔體貼，重視和諧與連結。",
+            light: "直覺敏銳、體貼溫柔、善於傾聽、重視情感",
+            dark: "容易優柔寡斷、過度在意他人眼光"
+        },
+        3: {
+            name: "3 號人｜表達者",
+            keyword: "創意 · 樂觀 · 社交",
+            desc: "你充滿活力與創造力，天生口才好，喜歡透過各種方式表達自我。樂觀開朗的個性讓你自然而然成為人群中的焦點。",
+            light: "創意橫溢、樂觀開朗、口才佳、社交能力強",
+            dark: "容易分心、有時過於情緒化、難以持久"
+        },
+        4: {
+            name: "4 號人｜建設者",
+            keyword: "踏實 · 穩定 · 責任",
+            desc: "你是務實可靠的人，重視秩序與規律，具有強烈的責任感。做事一步一腳印，是值得信賴的夥伴，能把夢想踏實落地。",
+            light: "踏實可靠、有條理、責任感強、耐心十足",
+            dark: "容易過於保守、有時缺乏彈性"
+        },
+        5: {
+            name: "5 號人｜自由者",
+            keyword: "自由 · 冒險 · 變化",
+            desc: "你熱愛自由與冒險，適應力超強，對新事物充滿好奇心。生命中需要不斷的變化與刺激，是最勇敢的探索者。",
+            light: "適應力強、好奇心旺盛、活力充沛、多才多藝",
+            dark: "容易浮躁、難以持續、有時缺乏方向感"
+        },
+        6: {
+            name: "6 號人｜照顧者",
+            keyword: "慈愛 · 家庭 · 奉獻",
+            desc: "你天生具有慈愛與關懷的特質，重視家庭與人際關係，致力於創造和諧的環境。給身邊的人滿滿的溫暖與安全感。",
+            light: "溫柔體貼、重視家庭、善於照顧他人、有責任心",
+            dark: "容易犧牲自己、過度付出導致疲憊"
+        },
+        7: {
+            name: "7 號人｜思考者",
+            keyword: "智慧 · 內省 · 直覺",
+            desc: "你擁有深邃的思想與強烈的求知欲，喜歡獨立思考與探索真理。直覺敏銳，是天生的哲學家與研究者。",
+            light: "智慧深邃、直覺強、獨立思考、求知欲強",
+            dark: "容易過度內省、有時與他人疏離"
+        },
+        8: {
+            name: "8 號人｜掌權者",
+            keyword: "成就 · 財富 · 執行力",
+            desc: "你擁有強大的執行力與商業頭腦，天生具備領導與管理的才能。對成就與目標有強烈渴望，是最有魄力的實踐者。",
+            light: "執行力強、有商業頭腦、目標明確、魄力十足",
+            dark: "容易過於強勢、有時過度重視物質成就"
+        },
+        9: {
+            name: "9 號人｜博愛者",
+            keyword: "博愛 · 智慧 · 使命感",
+            desc: "你擁有天生的使命感，渴望透過自己的力量讓世界更美好。多才多藝、樂於助人，對人生有宏觀的視野與理想。",
+            light: "博愛寬容、遠見宏觀、樂於付出、公平正義",
+            dark: "容易理想化、有時不切實際、情緒起伏大"
+        }
+    };
+
+    function calculate() {
+        const year = document.getElementById('input-year').value;
+        const month = document.getElementById('input-month').value;
+        const day = document.getElementById('input-day').value;
+
+        if (!year || !month || !day) {
+            alert('請完整填入年、月、日喔！');
+            return;
+        }
+
+        // 把所有數字加總
+        const fullDate = `${year}${month.padStart(2,'0')}${day.padStart(2,'0')}`;
+        let sum = 0;
+        for (let ch of fullDate) sum += parseInt(ch);
+
+        // 一直加到個位數
+        while (sum >= 10) {
+            let newSum = 0;
+            for (let ch of String(sum)) newSum += parseInt(ch);
+            sum = newSum;
+        }
+
+        const data = numerologyData[sum];
+        if (!data) return;
+
+        document.getElementById('result-num').textContent = sum;
+        document.getElementById('result-label').textContent = `${sum} 號人`;
+        document.getElementById('result-name').textContent = data.name.split('｜')[1] ?? data.name;
+        document.getElementById('result-keyword').textContent = data.keyword;
+        // 描述句號後換行
+        const descEl = document.getElementById('result-desc');
+        const sentences = data.desc.split('。').filter(s => s.trim());
+        descEl.innerHTML = sentences.map(s => s + '。').join('<br>');
+
+        // 光明面每8字換行
+        const lightEl = document.getElementById('result-light');
+        const lightText = data.light;
+        let lightLines = [];
+        for (let i = 0; i < lightText.length; i += 8) {
+            lightLines.push(lightText.slice(i, i + 8));
+        }
+        lightEl.innerHTML = lightLines.join('<br>');
+
+        document.getElementById('result-dark').textContent = data.dark;
+
+        const section = document.getElementById('result-section');
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 按 Enter 也可以計算
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter') calculate();
+    });
+</script>
+</body>
+</html>
